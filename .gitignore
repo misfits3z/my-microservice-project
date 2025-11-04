@@ -1,0 +1,53 @@
+# ==========================
+# Terraform
+# ==========================
+
+# Локальні файли стану (ніколи не пуш у репозиторій!)
+*.tfstate
+*.tfstate.*
+terraform.tfstate.backup
+terraform.tfstate.lock.info
+
+# Конфігурації backend (містять дані про AWS акаунт)
+.terraform/
+.terraform.lock.hcl
+
+# План застосування
+*.tfplan
+
+# Файли змінних із приватними даними
+terraform.tfvars
+*.auto.tfvars
+
+# Логи та тимчасові файли
+crash.log
+*.log
+
+# ==========================
+# IDE / Editor
+# ==========================
+
+# VS Code
+.vscode/
+.history/
+*.code-workspace
+
+# macOS
+.DS_Store
+
+# Linux / system
+*.swp
+*.swo
+
+# ==========================
+# Python 
+# ==========================
+__pycache__/
+*.pyc
+*.pyo
+
+# ==========================
+# Docker 
+# ==========================
+.env
+.env.*
