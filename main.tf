@@ -1,11 +1,11 @@
 provider "aws" {
-  region = "us-east-1"
+  region  = "us-east-1"
   profile = "terraform"
 }
 
 # Підключаємо модуль S3 та DynamoDB
 module "s3_backend" {
-  source     = "./modules/s3-backend"
+  source      = "./modules/s3-backend"
   bucket_name = "didenko-terraform-states"
   table_name  = "terraform-locks"
 }
@@ -22,24 +22,24 @@ module "vpc" {
 
 # Підключаємо модуль ECR
 module "ecr" {
-  source      = "./modules/ecr"
-  ecr_name    = "lesson-5-ecr"
+  source       = "./modules/ecr"
+  ecr_name     = "lesson-5-ecr"
   scan_on_push = true
 }
 
 module "eks" {
-  source          = "./modules/eks"          
-  cluster_name    = "eks-cluster-demo"            # Назва кластера
-  subnet_ids      = module.vpc.public_subnets     # ID підмереж
-  instance_type   = "t3.medium"                    # Тип інстансів
-  desired_size    = 1                             # Бажана кількість нодів
-  max_size        = 2                             # Максимальна кількість нодів
-  min_size        = 1                             # Мінімальна кількість нодів
+  source        = "./modules/eks"
+  cluster_name  = "eks-cluster-demo"        # Назва кластера
+  subnet_ids    = module.vpc.public_subnets # ID підмереж
+  instance_type = "t3.medium"               # Тип інстансів
+  desired_size  = 1                         # Бажана кількість нодів
+  max_size      = 2                         # Максимальна кількість нодів
+  min_size      = 1                         # Мінімальна кількість нодів
 }
 
 # Підключаємо дженкінс
 module "jenkins" {
-  source              = "./modules/jenkins"
+  source               = "./modules/jenkins"
   eks_cluster_name     = module.eks.eks_cluster_name
   eks_cluster_endpoint = module.eks.eks_cluster_endpoint
 }
@@ -53,10 +53,41 @@ module "argo_cd" {
   cluster_ca       = module.eks.eks_cluster_ca
   cluster_token    = module.eks.eks_cluster_token
 
-  
+
   app_repo_url = "https://github.com/misfits3z/my-microservice-project.git"
   app_revision = "lesson-8-9"
   app_path     = "charts/django-app"
+}
+
+module "rds" {
+  source = "./modules/rds"
+
+  name       = "myproject-aurora"
+  use_aurora = true
+
+  engine                 = "aurora-postgresql"
+  engine_version         = "14.11"
+  instance_class         = "db.r6g.large"
+  parameter_group_family = "aurora-postgresql14"
+
+  aurora_instance_count = 2
+
+  db_name  = "mydb"
+  username = "dbuser"
+  password = "SuperSecretPass123!"
+  port     = 5432
+
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.private_subnets
+
+  allowed_cidr_blocks = [
+    "10.0.0.0/16"
+  ]
+
+  tags = {
+    Environment = "prod"
+    Project     = "myproject"
+  }
 }
 
 
