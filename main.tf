@@ -44,6 +44,22 @@ module "jenkins" {
   eks_cluster_endpoint = module.eks.eks_cluster_endpoint
 }
 
+# Підключення модуля argo_cd
+
+module "argo_cd" {
+  source = "./modules/argo_cd"
+
+  cluster_endpoint = module.eks.eks_cluster_endpoint
+  cluster_ca       = module.eks.eks_cluster_ca
+  cluster_token    = module.eks.eks_cluster_token
+
+  
+  app_repo_url = "https://github.com/misfits3z/my-microservice-project.git"
+  app_revision = "lesson-8-9"
+  app_path     = "charts/django-app"
+}
+
+
 
 
 

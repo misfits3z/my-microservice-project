@@ -131,3 +131,91 @@ module "ecr" {
   repository_name = "my-microservice-repo"
 }
 
+🔹 Отримання пароля ArgoCD
+kubectl -n argocd get secret argocd-initial-admin-secret \
+  -o jsonpath="{.data.password}" | base64 --decode
+
+🔹 Відкрити UI ArgoCD
+kubectl -n argocd port-forward svc/argocd-server 8080:80
+
+Як перевірити Jenkins Job
+📌 Jenkins встановлюється Terraform-ом через Helm
+
+Адреса Jenkins повертається в terraform output (або через kubectl get svc -n jenkins).
+
+📌 Jenkins Pipeline виконує:
+
+Забирає код з гілки "name"
+
+Checkout гілки "name" (де лежить Dockerfile)
+
+Виконує Kaniko build → створює Docker image
+
+Пушить образ у ECR
+
+Оновлює тег у файлі:
+
+charts/django-app/values.yaml
+
+Комітить і пушить у гілку
+
+Argo CD підхоплює зміни й оновлює кластер
+
+📌 Як перевірити Job
+
+Відкрити Jenkins Dashboard
+
+Знайти Pipelines → натиснути вашу Job
+
+Запустити:
+
+Build Now
+
+Переглянути stages:
+
+Checkout infra
+
+1. Checkout app
+
+2. Login to ECR
+
+3. Build & Push Kaniko image
+
+4. Update Helm chart
+
+5. Commit & Push changes
+
+Після успішного виконання → перевірити, що в репозиторії змінився тег:
+
+charts/django-app/values.yaml
+
+Як побачити результат в Argo CD?
+
+📌 Відкрити UI ArgoCD:
+
+kubectl -n argocd port-forward svc/argocd-server 8080:80
+
+В браузері:
+
+http://localhost:8080
+
+📌 У Dashboard ви побачите Application django-app
+
+Статуси:
+
+* Healthy — деплой успішний
+
+* Synced — кластер оновлений відповідно до Helm chart
+
+* OutOfSync — були зміни в Git, ArgoCD ще не оновив
+
+ArgoCD автоматично:
+
+* застосовує новий Docker image
+
+* оновлює Deployment
+
+* створює або оновлює Service / ConfigMap
+
+* піднімає AWS LoadBalancer
+
