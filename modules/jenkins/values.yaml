@@ -1,37 +1,3 @@
-# controller:
-#   admin:
-#     username: admin
-#     password: admin123
-#   jenkinsUrl: http://jenkins:8080
-#   installPlugins:
-#     - kubernetes:4201.v1dd44f5b_1cf9
-#     - workflow-aggregator:590.v6a_d052e5a_a_b_5
-#     - git:5.2.0
-#     - configuration-as-code:1810.v9b_c30a_249a_4c
-#     - blueocean:1.27.6
-
-
-# agent:
-#   enabled: true
-#   image:
-#     repository: jenkins/inbound-agent
-#     tag: latest
-#   resources:
-#     limits:
-#       cpu: "500m"
-#       memory: "512Mi"
-#     requests:
-#       cpu: "200m"
-#       memory: "256Mi"
-
-# persistence:
-#   enabled: true
-#   size: 8Gi
-
-# service:
-#   type: LoadBalancer
-
-
 controller:
   image:
     repository: jenkins/jenkins
@@ -46,11 +12,11 @@ controller:
 
   persistence:
     enabled: true
-    storageClassName: gp2
+    storageClassName: gp2-csi
     size: 10Gi
 
   installPlugins:
-    - kubernetes:latest
+    - kubernetes:3983.vd7b_82db_e347b_
     - workflow-aggregator:latest
     - git:latest
     - configuration-as-code:latest
@@ -80,16 +46,16 @@ controller:
                         envVars:
                           - key: AWS_REGION
                             value: "us-east-1"
-                          # з Jenkins credentials підставимо AWS_ACCESS_KEY_ID/SECRET у пайплайні
                     volumes:
                       - emptyDirVolume:
                           memory: false
                           mountPath: "/workspace"
-    # доступ до диска з правами юзера jenkins
+
   podSecurityContext:
     fsGroup: 1000
     runAsUser: 1000
     runAsGroup: 1000
+
 
 
 
