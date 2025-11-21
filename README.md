@@ -309,4 +309,44 @@ module "rds" {
 ============== Prometheus & Grafana =====================
 
 Prometheus & Grafana були налаштовані через Helm, але в тестовому AWS-середовищі з 1 worker-node pod-и залишаються Pending через обмежені ресурси.
-У продакшн-оточенні з 2+ нодами вони розгортаються коректно.”
+У продакшн-оточенні з 2+ нодами вони розгортаються коректно.
+
+✅ Установка Prometheus
+
+kubectl create namespace monitoring
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
+helm install prometheus prometheus-community/prometheus \
+  -n monitoring
+
+Далі:
+
+kubectl get pods -n monitoring
+
+✅ Установка Grafana
+
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+
+helm install grafana grafana/grafana \
+  -n monitoring
+
+Далі:
+
+kubectl get pods -n monitoring
+
+⭐ Grafana логін:
+
+kubectl get secret grafana -n monitoring -o jsonpath="{.data.admin-password}" | base64 --decode
+
+⭐ Port-forward для доступу:
+
+Prometheus:
+
+kubectl port-forward -n monitoring svc/prometheus-server 9090:80
+
+Grafana:
+
+kubectl port-forward -n monitoring svc/grafana 3000:80
+
